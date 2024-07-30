@@ -93,14 +93,7 @@ import app1
 
 ## Routes ::>
 app = Flask(__name__)
-#CORS(app)
-CORS(app, resources={
-    r"/getRecommendation": {
-        "origins": "https://multidomainproduct-c87765a3f1a3.herokuapp.com",
-        "methods": ["GET", "POST"],
-        "allow_headers": ["Content-Type"]
-    }
-})
+CORS(app)
 
 @app.route('/',methods = ['GET','POST'])
 def hello_world():
