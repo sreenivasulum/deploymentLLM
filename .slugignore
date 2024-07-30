@@ -1,6 +1,4 @@
-# Exclude local files and directories
-*.bin
-*.sqlite3
+# Exclude local files and directori
 *.log
 *.git
 *.gitignore
@@ -12,5 +10,3 @@ __pycache__/
 *.pyo
 *.pyd
 
-# Exclude large data files or directories
-vectordb/
