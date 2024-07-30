@@ -5,6 +5,7 @@ Author : Yesh - Neo Corp
 
 import requests
 import json
+import os
 
 import chromadb
 from chromadb import Settings
