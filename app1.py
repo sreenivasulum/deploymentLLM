@@ -13,7 +13,7 @@ from chromadb import Settings
 from openai import OpenAI
 
 # api keys
-openai_api_key = "sk-proj-lx3gJyUf4CBET9kL6CyIT3BlbkFJtgKPJfzidV0Kzn66y8PV"
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 
 ## TODO : Check whether the vector db present or not
@@ -153,7 +153,7 @@ def getPersonality(username):
 ## Twitter ::> End
 
 
-client = OpenAI(api_key=openai_api_key)
+client = OpenAI(api_key=OPENAI_API_KEY)
 
 # calling open ai
 def callOpenAI(prompt,instruct):
