@@ -93,7 +93,8 @@ import app1
 
 ## Routes ::>
 app = Flask(__name__)
-CORS(app)
+#CORS(app)
+CORS(app, resources={r"/*": {"origins": "*"}})  #
 #CORS(app, resources={r"/getRecommendation": {"origins": "https://127.0.0.1:5000"}})
 
 @app.route('/',methods = ['GET','POST'])
