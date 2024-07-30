@@ -87,10 +87,6 @@ recommendation object :
 from flask import Flask, request 
 from flask_cors import CORS
 import os
-import pandas as pd
-from tqdm import tqdm
-
-import requests
 import json
 
 import app1
