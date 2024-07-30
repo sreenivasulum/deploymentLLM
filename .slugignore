@@ -1,0 +1,16 @@
+# Exclude local files and directories
+*.bin
+*.sqlite3
+*.log
+*.git
+*.gitignore
+node_modules/
+venv/
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Exclude large data files or directories
+vectordb/
