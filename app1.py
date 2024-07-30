@@ -14,6 +14,8 @@ from openai import OpenAI
 
 # api keys
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+if OPENAI_API_KEY is None:
+    raise ValueError("OPENAI_API_KEY environment variable not set")
 
 
 ## TODO : Check whether the vector db present or not
@@ -43,6 +45,9 @@ def getNearProduct( domain, product, n_results=2):
 
 ## Twitter :: Start
 bearer_token = os.getenv("BEARER_TOKEN")
+if BEARER_TOKEN is None:
+    raise ValueError("TWITTER_BEARER_TOKEN environment variable not set")
+    
 def create_url(username):
     # Specify the usernames that you want to lookup below
     # You can enter up to 100 comma-separated values.
