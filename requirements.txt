@@ -1,5 +1,5 @@
-Flask-Cors==4.0.1
 Flask
+Flask-Cors==4.0.1
 gunicorn==20.0.1
 openai==1.12.0
 pandas
