@@ -45,8 +45,9 @@ def getNearProduct( domain, product, n_results=2):
     return out
 
 ## Twitter :: Start
-bearer_token = "AAAAAAAAAAAAAAAAAAAAAIbMtwEAAAAAqw5oqOo3o07SCqa1VZPPkEH5jf8%3D0OYxcrWdjl6KlCB9bNstF5j2Au3U4LWx85lbG83wRF3vn9rOdc"
-    
+#bearer_token = ""
+bearer_token=os.getenv("BEARER_TOKEN")
+
 def create_url(username):
     # Specify the usernames that you want to lookup below
     # You can enter up to 100 comma-separated values.
