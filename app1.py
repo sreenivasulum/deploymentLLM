@@ -44,7 +44,7 @@ def getNearProduct( domain, product, n_results=2):
     return out
 
 ## Twitter :: Start
-bearer_token = os.getenv("BEARER_TOKEN")
+bearer_token = "AAAAAAAAAAAAAAAAAAAAAIbMtwEAAAAAqw5oqOo3o07SCqa1VZPPkEH5jf8%3D0OYxcrWdjl6KlCB9bNstF5j2Au3U4LWx85lbG83wRF3vn9rOdc"
 if BEARER_TOKEN is None:
     raise ValueError("TWITTER_BEARER_TOKEN environment variable not set")
     
