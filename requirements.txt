@@ -1,8 +1,8 @@
 Flask-Cors==4.0.1
 Flask
-gunicorn
+gunicorn==20.0.1
 openai==1.12.0
-pandas==2.2.2
-requests==2.31.0
-torch==2.3.0
+pandas
+requests
+torch
 tqdm
