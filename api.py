@@ -179,9 +179,9 @@ def getRecommendation():
     # Enqueue the recommendation task
     job = q.enqueue(app1.getRecommendation, selection, personality)
 
-    return job.result
+    #return job.result
    
-    #return jsonify({"job_id": job.id}), 202
+    return jsonify({"job_id": job.id}), 202
 
 @app.route('/jobStatus/<job_id>', methods=['GET'])
 def job_status(job_id):
