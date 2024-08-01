@@ -83,35 +83,44 @@ recommendation object :
     ]
 """
 
-# libraries
-from flask import Flask, request 
+from flask import Flask, request, jsonify
 from flask_cors import CORS
+from dotenv import load_dotenv
 import os
+import json
+from rq import Queue
+from worker import conn
 import app1
 
+# Load environment variables
+load_dotenv()
 
-
-## Routes ::>
 app = Flask(__name__)
 CORS(app)
 
-@app.route('/',methods = ['GET','POST'])
+# Initialize Redis queue
+q = Queue(connection=conn)
+
+@app.route('/', methods=['GET', 'POST'])
 def hello_world():
     return 'Hello World'
 
-@app.route('/tweets',methods = ['GET','POST'])
+@app.route('/tweets', methods=['GET', 'POST'])
 def tweets():
-    username = request.args.get('username') 
-    ## 
+    username = request.args.get('username')
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
     userid = app1.getUserId(username)
     tweets = app1.getTweets(userid)
-    return tweets
+    return jsonify(tweets)
 
-@app.route('/personality',methods = ['GET','POST'])
+@app.route('/personality', methods=['GET', 'POST'])
 def personality():
+    username = request.args.get('username')
+    if not username:
+        return jsonify({"error": "Username is required"}), 400
     personality = app1.getPersonality(username)
-    return personality
-
+    return jsonify(personality)
 
 @app.route('/getRecommendation',methods = ['GET','POST'])
 def getRecommendation():
@@ -162,9 +171,15 @@ def getRecommendation():
 
         Overall, this personality profile suggests a highly intellectual, engaged, and proactive individual who is dedicated to advancing the field of artificial intelligence through active research, community engagement, and thoughtful discussion on critical issues like bias and personalization in AI technologies.
     """
-    recommend = app1.getRecommendation(selection,personality)
+
+    
+    if not selection or not personality:
+        return jsonify({"error": "Selection and personality are required"}), 400
+
+    # Enqueue the recommendation task
+    job = q.enqueue(app1.getRecommendation, selection, personality)
    
-    return recommend
+    return jsonify({"job_id": job.id}), 202
 
 
 # main driver function
