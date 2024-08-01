@@ -88,7 +88,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import json
-from rq import Queue, Connection, Worker, Job
+from rq import Queue, Connection, Worker, job
 from worker import conn
 import app1
 
@@ -177,17 +177,17 @@ def getRecommendation():
         return jsonify({"error": "Selection and personality are required"}), 400
 
     # Enqueue the recommendation task
-    job = q.enqueue(app1.getRecommendation, selection, personality)
+    job1 = q.enqueue(app1.getRecommendation, selection, personality)
 
-    #return job.result
+    #return job1.result
    
     return jsonify({"job_id": job.id}), 202
 
 @app.route('/jobStatus/<job_id>', methods=['GET'])
 def job_status(job_id):
-    job = Job.fetch(job_id, connection=conn)
-    if job.is_finished:
-        return jsonify(job.result), 200
+    job1 = job.fetch(job_id, connection=conn)
+    if job1.is_finished:
+        return jsonify(job1.result), 200
     else:
         return jsonify({"status": "Job is still processing"}), 202
 
