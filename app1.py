@@ -12,6 +12,10 @@ from chromadb import Settings
 
 ## Calling to OpenAI
 from openai import OpenAI
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
 
 # api keys
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
