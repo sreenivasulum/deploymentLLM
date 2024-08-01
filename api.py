@@ -88,7 +88,9 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import json
-from rq import Queue, Connection, Worker, job
+from rq import Queue, Connection, Worker
+from rq.job import Job
+
 import app1
 
 # Load environment variables
@@ -187,7 +189,7 @@ def getRecommendation():
 
 @app.route('/jobStatus/<job_id>', methods=['GET'])
 def job_status(job_id):
-    job1 = job.fetch(job_id, connection=conn)
+    job1 = Job.fetch(job_id, connection=conn)
     if job1.is_finished:
         return jsonify(job1.result), 200
     else:
