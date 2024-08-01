@@ -88,7 +88,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 import json
-from rq import Queue
+from rq import Queue, Connection, Worker, Job
 from worker import conn
 import app1
 
