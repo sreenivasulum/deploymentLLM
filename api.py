@@ -90,6 +90,7 @@ import os
 import json
 from rq import Queue, Connection, Worker
 from rq.job import Job
+from worker import conn
 
 import app1
 
@@ -98,10 +99,6 @@ load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
-
-# Initialize Redis queue
-redis_url = os.getenv('REDIS_URL')
-conn = redis.from_url(redis_url)
 
 q = Queue(connection=conn)
 
