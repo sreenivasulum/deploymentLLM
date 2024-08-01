@@ -181,6 +181,13 @@ def getRecommendation():
    
     return jsonify({"job_id": job.id}), 202
 
+@app.route('/jobStatus/<job_id>', methods=['GET'])
+def job_status(job_id):
+    job = Job.fetch(job_id, connection=conn)
+    if job.is_finished:
+        return jsonify(job.result), 200
+    else:
+        return jsonify({"status": "Job is still processing"}), 202
 
 # main driver function
 if __name__ == '__main__':
