@@ -8,13 +8,6 @@ import os
 ## Calling to OpenAI
 from openai import OpenAI
 
-def background_task(n):
-    """ Function that returns len(n) and simulates a delay """
-    delay = 2
-    print(f"Task running with argument {n}")
-    time.sleep(delay)
-    print(f"Task completed with argument {n}")
-    return len(n)
 
 # api keys
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
@@ -46,6 +39,15 @@ def getNearProduct( domain, product, n_results=2):
 
 ## Twitter :: Start
 bearer_token = os.getenv("BEARER_TOKEN")
+
+
+def background_task(n):
+    """ Function that returns len(n) and simulates a delay """
+    delay = 2
+    print(f"Task running with argument {n}")
+    time.sleep(delay)
+    print(f"Task completed with argument {n}")
+    return len(n)
 
 def create_url(username):
     # Specify the usernames that you want to lookup below
