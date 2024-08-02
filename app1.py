@@ -5,7 +5,8 @@ Author : Yesh - Neo Corp
 
 import requests
 import json
-
+import time
+import logging
 import chromadb
 from chromadb import Settings
 import os
@@ -262,11 +263,11 @@ def getRecommendation(selection,personality):
 
     recommendation_object = {
         "in-domain": {},
-        "cross-domain": {},
         "top-5": [],
         "best": {}
     }
-
+    start_time = time.time()
+    logging.info('Request received at /getRecommendation')
     ## In-domain recommendations
     ## keys to add ::> top_products, top_5, best_recommendation 
     ## Get near products :: Done !
@@ -285,6 +286,7 @@ def getRecommendation(selection,personality):
                     obj["image_url"]=""
                 near_products_formatted.append(obj)
         recommendation_object["in-domain"][domain] = { "top_products" : near_products_formatted }
+        logging.info('Top products of {domain}generated')
 
     ## Get personality :: Done !
     username = "AmeetDeshpande_"
@@ -371,7 +373,7 @@ def getRecommendation(selection,personality):
         instruct = """You are an advance recommendation system. Recommend best five products among the choices."""
         recommendation = callOpenAI(template, instruct)
         recommendation_object['in-domain'][domain]['top_5'] = recommendation
-
+        logging.info('Top 5 products of {domain} generated')
     ## top best :: Done!
     domains = list(selection.keys())
     for domain in domains: 
@@ -429,292 +431,7 @@ def getRecommendation(selection,personality):
         instruct = """You are an advance recommendation system. Recommend top best product among the choices."""
         recommendation = callOpenAI(template, instruct)
         recommendation_object['in-domain'][domain] ['top_best'] = recommendation
-    ## cross domain
-    #### cross domain: top products => top 5 => top best
-    domains = list(selection.keys())
-
-    for domain, products in selection.items():
-        ## for each product get nearest top 2 products
-        near_products_formatted = []
-        non_domains = [d for d in domains if d!= domain]
-        for product in products:
-            for d in non_domains:
-                near_products = getNearProduct(d, product, n_results=1)    
-                for meta, doc in zip(near_products['metadatas'][0],near_products['documents'][0]):
-                    obj = {
-                        "product":doc
-                    }
-                    if 'image_url' in meta:
-                        obj["image_url"] = meta["image_url"]
-                    else:
-                        obj["image_url"]=""
-                    near_products_formatted.append(obj)
-        recommendation_object["cross-domain"][domain] = { "top_products" : near_products_formatted }
-
-    ## Top 5 : Done !
-    for domain in domains: 
-        domain_products = recommendation_object['cross-domain'][domain]['top_products']
-
-        no_of_products = 5
-
-        selection_texts = ""
-        for p in selection[domain]:
-            p_text = "product name : {} \n".format(p)
-            selection_texts += p_text
-
-        choices = ""
-        for p in recommendation_object['cross-domain'][domain]['top_products']:
-            choice = "product name : {} \nimage link: {} \n\n".format(p['product'], p['image_url'])
-            choices+= choice
-
-        ## prompt :: in-domain top products => top 5
-        template = f"""Task: Generate a product recommendation based on the user purchases and his personality.
-                    Role: You are an expert in recommending products to user based on his preferences,selection and past purchases.\
-                    Additionaly you were given his personality generated from his twiiter posts. You were given few choices which are similar \
-                    products to the user already purchased. You need to select the best product among the choices. 
-                    
-                    Input Data: 
-                        1. User purchased products:
-                            {selection_texts}
-                    
-                        2. User personality:
-                            {personality}
-                            
-                    Desired Output: Recommend the best {no_of_products} products among the below choices.  
-                    Here the choices analyze them carefully and select best one user might purchase next.
-                        Choices:
-                        {choices}
-                    
-                    Recommendation Logic:
-                    To generate a relevant product recommendation for the given user, follow these steps:
-                        Personality: Analyze user personality and understand his likes and dislikes.
-                        
-                        Previous purchases: Determine the taste and user preferrences.
-                    
-                        Match Choices: Compare the user's preferences with the provided choices.
-                    
-                        Recommend Product: Select the best {no_of_products} products from the choices that best aligns with the user preferences. 
-                    Note: Just give me the recommended product and reasoning in following json format. 
-                    {{
-                        "product 1": {{
-                                "product name": "",
-                                "image link": "",
-                                "description": "",
-                                "reason": ""
-                        }},
-                        "product 2": {{
-                                "product name": "",
-                                "image link": "",
-                                "description": "",
-                                "reason": ""
-                        }},
-                        "product 3": {{
-                                "product name": "",
-                                "image link": "",
-                                "description": "",
-                                "reason": ""
-                        }},
-                        "product 4": {{
-                                "product name": "",
-                                "image link": "",
-                                "description": "",
-                                "reason": ""
-                        }},
-                        "product 5": {{
-                                "product name": "",
-                                "image link": "",
-                                "description": "",
-                                "reason": ""
-                        }}
-                    }}
-                """
-        instruct = """You are an advance recommendation system. Recommend best five products among the choices."""
-        recommendation = callOpenAI(template, instruct)
-        recommendation_object['cross-domain'][domain]['top_5'] = recommendation
-
-        ## top best
-    #### cross domain => top best
-    for domain in domains: 
-        domain_products = recommendation_object['cross-domain'][domain]['top_products']
-
-        no_of_products = 1
-
-        selection_texts = ""
-        for p in selection[domain]:
-            p_text = "product name : {} \n".format(p)
-            selection_texts += p_text
-
-        choices = ""
-        for p in recommendation_object['cross-domain'][domain]['top_products']:
-            choice = "product name : {} \nimage link: {} \n\n".format(p['product'], p['image_url'])
-            choices+= choice
-
-        ## prompt :: in-domain top products => top 5 => top 1
-        template = f"""Task: Generate a product recommendation based on the user purchases and his personality.
-                    Role: You are an expert in recommending best product to user based on his preferences,selection and past purchases.\
-                    Additionaly you were given his personality generated from his twiiter posts. You were given few choices which are similar \
-                    products to the user already purchased. You need to select the best product among the choices. 
-                    
-                    Input Data: 
-                        1. User purchased products:
-                            {selection_texts}
-                    
-                        2. User personality:
-                            {personality}
-                            
-                    Desired Output: Recommend the best {no_of_products} product among the below choices.  
-                    Here the choices analyze them carefully and select best one user might purchase next.
-                        Choices:
-                        {choices}
-                    
-                    Recommendation Logic:
-                    To generate a relevant product recommendation for the given user, follow these steps:
-                        Personality: Analyze user personality and understand his likes and dislikes.
-                        
-                        Previous purchases: Determine the taste and user preferrences.
-                    
-                        Match Choices: Compare the user's preferences with the provided choices.
-                    
-                        Recommend Product: Select the best {no_of_products} product from the choices that best aligns with the user preferences. 
-                    Note: Just give me the recommended product and reasoning in following json format. 
-                    {{
-                        "product 1": {{
-                                "product name": "",
-                                "image link": "",
-                                "description": "",
-                                "reason": ""
-                        }}
-                    }}
-                """
-        instruct = """You are an advance recommendation system. Recommend top best product among the choices."""
-        recommendation = callOpenAI(template, instruct)
-        recommendation_object['cross-domain'][domain]['top_best'] = recommendation
-    
-
-    ## Top 5 : Done !
-    selection_texts = ""
-    choices = ""
-
-    for domain in domains: 
-        domain_products = recommendation_object['in-domain'][domain]['top_products']
-
-        no_of_products = 5
-
-        for p in selection[domain]:
-            p_text = "product name : {} \n".format(p)
-            selection_texts += p_text
-
-        for p in recommendation_object['in-domain'][domain]['top_products']:
-            choice = "product name : {} \nimage link: {} \n\n".format(p['product'], p['image_url'])
-            choices+= choice
-            
-    
-    ## prompt :: altogether top products => top 5
-    template = f"""Task: Generate a product recommendation based on the user purchases and his personality.
-                Role: You are an expert in recommending products to user based on his preferences,selection and past purchases.\
-                Additionaly you were given his personality generated from his twiiter posts. You were given few choices which are similar \
-                products to the user already purchased. You need to select the best product among the choices. 
-                
-                Input Data: 
-                    1. User purchased products:
-                        {selection_texts}
-                
-                    2. User personality:
-                        {personality}
-                        
-                Desired Output: Recommend the best {no_of_products} products among the below choices.  
-                Here the choices analyze them carefully and select best one user might purchase next.
-                    Choices:
-                    {choices}
-                
-                Recommendation Logic:
-                To generate a relevant product recommendation for the given user, follow these steps:
-                    Personality: Analyze user personality and understand his likes and dislikes.
-                    
-                    Previous purchases: Determine the taste and user preferrences.
-                
-                    Match Choices: Compare the user's preferences with the provided choices.
-                
-                    Recommend Product: Select the best {no_of_products} products from the choices that best aligns with the user preferences. 
-                Note: Just give me the recommended product and reasoning in following json format. 
-                {{
-                    "product 1": {{
-                            "product name": "",
-                            "image link": "",
-                            "description": "",
-                            "reason": ""
-                    }},
-                    "product 2": {{
-                            "product name": "",
-                            "image link": "",
-                            "description": "",
-                            "reason": ""
-                    }},
-                    "product 3": {{
-                            "product name": "",
-                            "image link": "",
-                            "description": "",
-                            "reason": ""
-                    }},
-                    "product 4": {{
-                            "product name": "",
-                            "image link": "",
-                            "description": "",
-                            "reason": ""
-                    }},
-                    "product 5": {{
-                            "product name": "",
-                            "image link": "",
-                            "description": "",
-                            "reason": ""
-                    }}
-                }}
-            """
-    instruct = """You are an advance recommendation system. Recommend five products among the choices."""
-    recommendation = callOpenAI(template, instruct)
-    recommendation_object['top_5'] = recommendation
-
-    ## top best
-    ## prompt ::  top 5 => top 1
-    no_of_products = 1
-    template = f"""Task: Generate a product recommendation based on the user purchases and his personality.
-                Role: You are an expert in recommending best product to user based on his preferences,selection and past purchases.\
-                Additionaly you were given his personality generated from his twiiter posts. You were given few choices which are similar \
-                products to the user already purchased. You need to select the best product among the choices. 
-                
-                Input Data: 
-                    1. User purchased products:
-                        {selection_texts}
-                
-                    2. User personality:
-                        {personality}
-                        
-                Desired Output: Recommend the best {no_of_products} product among the below choices.  
-                Here the choices analyze them carefully and select best one user might purchase next.
-                    Choices:
-                    {choices}
-                
-                Recommendation Logic:
-                To generate a relevant product recommendation for the given user, follow these steps:
-                    Personality: Analyze user personality and understand his likes and dislikes.
-                    
-                    Previous purchases: Determine the taste and user preferrences.
-                
-                    Match Choices: Compare the user's preferences with the provided choices.
-                
-                    Recommend Product: Select the best {no_of_products} product from the choices that best aligns with the user preferences. 
-                Note: Just give me the recommended product and reasoning in following json format. 
-                {{
-                    "product 1": {{
-                            "product name": "",
-                            "image link": "",
-                            "description": "",
-                            "reason": ""
-                    }}
-                }}
-            """
-    instruct = """You are an advance recommendation system. Recommend top best product among the choices."""
-    recommendation = callOpenAI(template, instruct)
-    recommendation_object['top_best'] = recommendation
-
+        logging.info('Best product of {domain} generated')
+        end_time = time.time()
+        logging.info(f'Request processed in {end_time - start_time} seconds')
     return recommendation_object
