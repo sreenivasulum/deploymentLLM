@@ -3,6 +3,7 @@ Flask-Cors==4.0.1
 gunicorn==20.1.0
 openai==1.12.0
 requests
+python-dotenv
 chromadb==0.4.24
 redis
 rq
