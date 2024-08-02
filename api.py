@@ -10,6 +10,10 @@ app = Flask(__name__)
 redis_conn = Redis.from_url(os.getenv('REDIS_URL'))
 q = Queue(connection=redis_conn)
 
+@app.route('/', methods=['GET', 'POST'])
+def hello_world():
+    return 'Hello World'
+
 @app.route('/start-task', methods=['POST'])
 def start_task():
     data = request.get_json()
