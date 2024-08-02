@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from redis import Redis
 from rq import Queue
+from dotenv import load_dotenv
 import time
 from flask_cors import CORS
 import os
@@ -8,7 +9,7 @@ import app1
 
 app = Flask(__name__)
 CORS(app)
-
+load_dotenv()
 # Connect to Redis
 redis_conn = Redis.from_url(os.getenv('REDIS_URL'))
 q = Queue(connection=redis_conn)
