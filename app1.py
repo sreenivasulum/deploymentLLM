@@ -162,14 +162,19 @@ client = OpenAI(api_key=OPENAI_API_KEY)
 
 # calling open ai
 def callOpenAI(prompt,instruct):
-    completion = client.chat.completions.create(
+    try:
+        completion = client.chat.completions.create(
         model="gpt-4-turbo",
-      messages=[
-        {"role": "system", "content":instruct},
-        {"role": "user", "content": prompt}
-      ]
-    )
-    return completion.choices[0].message.content
+        messages=[
+         {"role": "system", "content":instruct},
+         {"role": "user", "content": prompt}
+         ]
+         )
+        return completion.choices[0].message.content
+    except Exception as e:
+        print(f"Error occurred: {e}")
+        # Optionally, log more details or send an alert
+        return None
 
 def getRecommendHelper(selection,personality):
 
