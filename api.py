@@ -32,4 +32,5 @@ def job_status(job_id):
         return jsonify({'status': 'in progress'})
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    port = int(os.environ.get('PORT', 5000))
+    app.run(host='0.0.0.0', port=port)
