@@ -90,7 +90,7 @@ def getRecommendation():
 def job_status(job_id):
     job = q.fetch_job(job_id)
     if job.is_finished:
-        return jsonify({'status': 'finished', 'result': job.result})
+        return job.result
     elif job.is_failed:
         return jsonify({'status': 'failed'})
     else:
